@@ -1,10 +1,14 @@
 import React, { useState } from "react";
 import Button from "../components/ui/Button";
 import { uploadImage } from "../api/uploader";
+import { AddNewProduct } from "../api/firebase";
 
 export default function NewProduct() {
   const [product, setProduct] = useState({});
   const [file, setFile] = useState();
+  const [isUploading, setIsUploading] = useState(false);
+  const [success, setSuccess] = useState();
+
   const handleChange = (e) => {
     const { name, value, files } = e.target;
     if (name === "file") {
@@ -15,14 +19,32 @@ export default function NewProduct() {
   };
   const handleSubmit = (e) => {
     e.preventDefault();
-    uploadImage(file).then((url) => {
-      console.log(url);
-    });
+    setIsUploading(true);
+    uploadImage(file) //
+      .then((url) => {
+        console.log(url);
+        AddNewProduct(product, url) //
+          .then(() => {
+            setSuccess("성공적으로 제품이 추가되었습니다.");
+            setTimeout(() => {
+              setSuccess(null);
+            }, 4000);
+          });
+      })
+      .finally(() => setIsUploading(false));
   };
   return (
-    <section>
-      {file && <img src={URL.createObjectURL(file)} alt="local file" />}
-      <form onSubmit={handleSubmit}>
+    <section className="w-full text-center">
+      <h2 className="text-2xl font-bold my-4">새로운 제품 등록</h2>
+      {success && <p className="my-2">✅ {success}</p>}
+      {file && (
+        <img
+          className="w-96 mx-auto mb-2"
+          src={URL.createObjectURL(file)}
+          alt="local file"
+        />
+      )}
+      <form onSubmit={handleSubmit} className="flex flex-col px-12">
         <input
           type="file"
           accept="image/*"
@@ -39,7 +61,7 @@ export default function NewProduct() {
           onChange={handleChange}
         />
         <input
-          type="text"
+          type="number"
           name="price"
           value={product.price ?? ""}
           placeholder="가격"
@@ -70,7 +92,10 @@ export default function NewProduct() {
           required
           onChange={handleChange}
         />
-        <Button text={"제품 등록하기"} />
+        <Button
+          text={isUploading ? "업로드중" : "제품 등록하기"}
+          disabled={isUploading}
+        />
       </form>
     </section>
   );
