@@ -53,6 +53,7 @@ async function adminUser(user) {
     });
 }
 
+// 제품 추가
 export async function AddNewProduct(product, image) {
   const id = uuid();
   return set(ref(database, `products/${uuid()}`), {
@@ -61,5 +62,14 @@ export async function AddNewProduct(product, image) {
     price: parseInt(product.price),
     image,
     option: product.option.split(","),
+  });
+}
+
+export async function getProducts() {
+  return get(ref(database, "products")).then((snapshot) => {
+    if (snapshot.exists()) {
+      return Object.values(snapshot.val());
+    }
+    return [];
   });
 }
