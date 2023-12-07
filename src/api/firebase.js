@@ -45,7 +45,6 @@ async function adminUser(user) {
     .then((snapshot) => {
       if (snapshot.exists()) {
         const admins = snapshot.val();
-        console.log(admins);
         const isAdmin = admins.includes(user.uid);
         return { ...user, isAdmin };
       }
@@ -78,7 +77,6 @@ export async function getCart(userId) {
   return get(ref(database, `carts/${userId}`)) //
     .then((snapshot) => {
       const items = snapshot.val() || {};
-      console.log(items);
       return Object.values(items);
     });
 }
